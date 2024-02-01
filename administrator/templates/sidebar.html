@@ -22,12 +22,20 @@
       <li class=""><a href="{% url 'viewVotes' %}"><span class="glyphicon glyphicon-lock"></span> <span>Votes</span></a></li>
       <li class="header">MANAGE</li>
       <li class=""><a href="{% url 'adminViewVoters' %}"><i class="fa fa-users"></i> <span>Voters</span></a></li>
+      <li class=""><a href="{% url 'viewPredict' %}"><i class="fa fa-check"></i> <span>Voters Validation</span></a></li>
       <li class=""><a href="{% url 'viewPositions' %}"><i class="fa fa-tasks"></i> <span>Positions</span></a></li>
       <li class=""><a href="{% url 'viewCandidates' %}"><i class="fa fa-black-tie"></i> <span>Candidates</span></a></li>
       <li class="header">SETTINGS</li>
       <li class=""><a href="{% url 'ballot_position' %}"><i class="fa fa-file-text"></i> <span>Ballot Position</span></a></li>
       <li class=""><a href="#config" data-toggle="modal"><i class="fa fa-cog"></i> <span>Election Title</span></a></li>
-            
+      
+      {% elif request.user.user_type == '2' %}
+      <!-- Sidebar elements for user_type 2 -->
+      <li class="header">HOME</li>
+      <li class=""><a href="{% url 'voterDashboard' %}"><i class="fa fa-some-icon"></i> <span>Dashboard</span></a></li>
+      <li class=""><a href="{% url 'voterResult' %}"><i class="fa fa-some-icon"></i> <span>Result</span></a></li>
+      <!-- Add more elements specific to user_type 2 as needed -->
+
       {% endif %}
         
       <li class="header">Exit</li>

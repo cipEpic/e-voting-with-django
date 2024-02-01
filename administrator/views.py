@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 import json  # Not used
-from django_renderpdf.views import PDFView
+# from django_renderpdf.views import PDFView
 
 
 def find_n_winners(data, n):
@@ -30,7 +30,7 @@ def find_n_winners(data, n):
     return ", &nbsp;".join(final_list)
 
 
-class PrintView(PDFView):
+# class PrintView(PDFView):
     template_name = 'admin/print.html'
     prompt_download = True
 
@@ -125,7 +125,7 @@ def dashboard(request):
 
 def voters(request):
     voters = Voter.objects.all()
-    userForm = CustomUserForm(request.POST or None)
+    userForm = CustomUserForm(request.POST or None, request.FILES or None)
     voterForm = VoterForm(request.POST or None)
     context = {
         'form1': userForm,
@@ -137,6 +137,12 @@ def voters(request):
         if userForm.is_valid() and voterForm.is_valid():
             user = userForm.save(commit=False)
             voter = voterForm.save(commit=False)
+
+            # Assign user photo if available
+            if 'user_photo' in request.FILES:
+                user.user_photo = request.FILES['user_photo']
+
+
             voter.admin = user
             user.save()
             voter.save()
@@ -160,6 +166,8 @@ def view_voter_by_id(request):
         context['phone'] = voter.phone
         context['id'] = voter.id
         context['email'] = voter.admin.email
+        # context['user_photo'] = voter.admin.user_photo
+        context['validation_status'] = voter.admin.validation_status
     return JsonResponse(context)
 
 
@@ -181,13 +189,32 @@ def view_position_by_id(request):
 def updateVoter(request):
     if request.method != 'POST':
         messages.error(request, "Access Denied")
+    # try:
+    #     instance = Voter.objects.get(id=request.POST.get('id'))
+    #     user = CustomUserForm(request.POST or None, instance=instance.admin)
+    #     voter = VoterForm(request.POST or None, instance=instance)
+    #     # voter.validation_status = request.POST.get('validation_status')
+    #     # voter.photo_V = request.POST.get('photo_V')
+    #     user.save()
+    #     voter.save()
+    #     messages.success(request, "Voter's bio updated")
     try:
-        instance = Voter.objects.get(id=request.POST.get('id'))
-        user = CustomUserForm(request.POST or None, instance=instance.admin)
-        voter = VoterForm(request.POST or None, instance=instance)
-        user.save()
-        voter.save()
-        messages.success(request, "Voter's bio updated")
+        voter_id = request.POST.get('id')
+        instance = Voter.objects.get(id=voter_id)
+        user_form = CustomUserForm(request.POST, instance=instance.admin)
+        voter_form = VoterForm(request.POST, instance=instance)
+
+        if user_form.is_valid() and voter_form.is_valid():
+            user_form.save()
+            voter_form.save()
+
+            # Mengakses objek User dan mengupdate validation_status
+            instance.admin.validation_status = request.POST.get('validation_status')
+            instance.admin.save()
+
+            messages.success(request, "Voter's bio updated")
+        else:
+            messages.error(request, "Form validation failed")
     except:
         messages.error(request, "Access To This Resource Denied")
 
@@ -391,3 +418,15 @@ def resetVote(request):
     Voter.objects.all().update(voted=False, verified=False, otp=None)
     messages.success(request, "All votes has been reset")
     return redirect(reverse('viewVotes'))
+
+
+
+#Function for validation
+def viewPredict(request):
+    predict_data = []
+
+    context = {
+        'predict': predict_data,
+        'page_title': 'Predict'
+    }
+    return render(request, "admin/predict.html", context)

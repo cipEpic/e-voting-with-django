@@ -14,6 +14,7 @@ class CustomUserForm(FormSettings):
     email = forms.EmailField(required=True)
     # email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput)
+    user_photo = forms.ImageField(required=False)  # Add this line for user_photo
 
     widget = {
         'password': forms.PasswordInput(),
@@ -58,4 +59,4 @@ class CustomUserForm(FormSettings):
 
     class Meta:
         model = CustomUser
-        fields = ['last_name', 'first_name', 'email', 'password', ]
+        fields = ['last_name', 'first_name', 'email', 'password', 'user_photo', 'validation_status',]

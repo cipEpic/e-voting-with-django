@@ -31,9 +31,10 @@ urlpatterns = [
     # * Votes
     path('votes/view', views.viewVotes, name='viewVotes'),
     path('votes/reset/', views.resetVote, name='resetVote'),
-    path('votes/print/', views.PrintView.as_view(), name='printResult'),
+    # path('votes/print/', views.PrintView.as_view(), name='printResult'),
 
-
+    #validation
+    path('predict/', views.viewPredict, name='viewPredict'),
 
 
 ]

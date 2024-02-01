@@ -11,6 +11,13 @@ class Voter(models.Model):
     voted = models.BooleanField(default=False)
     otp_sent = models.IntegerField(default=0)  # Control how many OTPs are sent
 
+    # New columns
+    # photo_V = models.ImageField(upload_to="voting_voter")
+    # validation_status = models.CharField(
+    #     max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')],
+    #     default='pending'
+    # )
+    
     def __str__(self):
         return self.admin.last_name + ", " + self.admin.first_name
 

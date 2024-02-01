@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, reverse
 from account.views import account_login
 from .models import Position, Candidate, Voter, Votes
+from account.models import CustomUser
 from django.http import JsonResponse
 from django.utils.text import slugify
 from django.contrib import messages
 from django.conf import settings
 from django.http import JsonResponse
-import requests
+# import requests
 import json
 # Create your views here.
 
@@ -120,6 +121,54 @@ def dashboard(request):
         else:
             return redirect(reverse('show_ballot'))
 
+def result(request):
+    user = request.user
+    positions = Position.objects.all().order_by('priority')
+    candidates = Candidate.objects.all()
+    voters = Voter.objects.all()
+    voted_voters = Voter.objects.filter(voted=1)
+    list_of_candidates = []
+    votes_count = []
+    chart_data = {}
+    # * Check if this voter has been verified
+    if user.voter.otp is None or user.voter.verified == False:
+        if not settings.SEND_OTP:
+            # Bypass
+            msg = bypass_otp()
+            messages.success(request, msg)
+            return redirect(reverse('show_ballot'))
+        else:
+            return redirect(reverse('voterVerify'))
+    else:
+        if user.voter.voted:  # * User has voted
+            for position in positions:
+                list_of_candidates = []
+                votes_count = []
+                for candidate in Candidate.objects.filter(position=position):
+                    list_of_candidates.append(candidate.fullname)
+                    votes = Votes.objects.filter(candidate=candidate).count()
+                    votes_count.append(votes)
+                chart_data[position] = {
+                    'candidates': list_of_candidates,
+                    'votes': votes_count,
+                    'pos_id': position.id
+                }
+            # To display election result or candidates I voted for ?
+            context = {
+                'my_votes': Votes.objects.filter(voter=user.voter),
+                'position_count': positions.count(),
+                'candidate_count': candidates.count(),
+                'voters_count': voters.count(),
+                'voted_voters_count': voted_voters.count(),
+                'positions': positions,
+                'chart_data': chart_data,
+                'page_title': "Result"
+            }
+            return render(request, "voting/voter/tally.html", context)
+        else:
+            # Add a message for users who haven't voted yet
+            messages.info(request, "Please vote first to preview the result.")
+            return redirect(reverse('show_ballot'))
 
 def verify(request):
     context = {
@@ -165,7 +214,8 @@ def resend_otp(request):
                     error = True
                     response = "OTP not sent. Please try again"
             except Exception as e:
-                response = "OTP could not be sent." + str(e)
+                # response = "OTP could not be sent." + str(e)
+                response = "OTP has been created, please contacted admin" + str(e)
 
                 # * Send OTP
     else:
@@ -193,7 +243,8 @@ def send_sms(phone_number, msg):
     email = os.environ.get('SMS_EMAIL')
     password = os.environ.get('SMS_PASSWORD')
     if email is None or password is None:
-        raise Exception("Email/Password cannot be Null")
+        # raise Exception("Email/Password cannot be Null")
+        raise Exception("")
     url = "https://app.multitexter.com/v2/app/sms"
     data = {"email": email, "password": password, "message": msg,
             "sender_name": "OTP", "recipients": phone_number, "forcednd": 1}
@@ -322,9 +373,25 @@ def submit_ballot(request):
     if request.method != 'POST':
         messages.error(request, "Please, browse the system properly")
         return redirect(reverse('show_ballot'))
-
+    
+    
     # Verify if the voter has voted or not
+    # voter = request.user.voter
+    # if voter.voted:
+    #     messages.error(request, "You have voted already")
+    #     return redirect(reverse('voterDashboard'))
     voter = request.user.voter
+    custom_user = CustomUser.objects.get(id=voter.admin.id)
+
+    # Check validation status
+    if custom_user.validation_status == 'pending':
+        messages.error(request, "Your voter status is still pending. You cannot vote at the moment. Please Contacted admin")
+        return redirect(reverse('voterDashboard'))
+    elif custom_user.validation_status == 'rejected':
+        messages.error(request, "Your voter status has been rejected. You cannot vote.")
+        return redirect(reverse('voterDashboard'))
+
+
     if voter.voted:
         messages.error(request, "You have voted already")
         return redirect(reverse('voterDashboard'))

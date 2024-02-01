@@ -39,6 +39,12 @@ class CustomUser(AbstractUser):
     user_type = models.CharField(default=2, choices=USER_TYPE, max_length=1)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    user_photo = models.ImageField(upload_to="account_customuser", blank=True, null=True)  # New field
+    validation_status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')],
+        default='pending'
+    )  # New field
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
