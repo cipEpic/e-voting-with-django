@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, reverse
 from account.views import account_login
-from .models import Position, Candidate, Voter, Votes
+from .models import Position, Candidate, Voter, Votes, Votes_encrypt
 from account.models import CustomUser
 from django.http import JsonResponse
 from django.utils.text import slugify
 from django.contrib import messages
 from django.conf import settings
 from django.http import JsonResponse
+
 # import requests
 import json
 # Create your views here.
@@ -169,6 +170,57 @@ def result(request):
             # Add a message for users who haven't voted yet
             messages.info(request, "Please vote first to preview the result.")
             return redirect(reverse('show_ballot'))
+
+
+def encrypt_result(request):
+    user = request.user
+    positions = Position.objects.all().order_by('priority')
+    candidates = Candidate.objects.all()
+    voters = Voter.objects.all()
+    voted_voters = Voter.objects.filter(voted=1)
+    list_of_candidates = []
+    votes_count = []
+    chart_data = {}
+    # * Check if this voter has been verified
+    if user.voter.otp is None or user.voter.verified == False:
+        if not settings.SEND_OTP:
+            # Bypass
+            msg = bypass_otp()
+            messages.success(request, msg)
+            return redirect(reverse('show_ballot'))
+        else:
+            return redirect(reverse('voterVerify'))
+    else:
+        if user.voter.voted:  # * User has voted
+            for position in positions:
+                list_of_candidates = []
+                votes_count = []
+                for candidate in Candidate.objects.filter(position=position):
+                    list_of_candidates.append(candidate.fullname)
+                    votes = Votes.objects.filter(candidate=candidate).count()
+                    votes_count.append(votes)
+                chart_data[position] = {
+                    'candidates': list_of_candidates,
+                    'votes': votes_count,
+                    'pos_id': position.id
+                }
+            # To display election result or candidates I voted for ?
+            context = {
+                'my_votes': Votes.objects.filter(voter=user.voter),
+                'position_count': positions.count(),
+                'candidate_count': candidates.count(),
+                'voters_count': voters.count(),
+                'voted_voters_count': voted_voters.count(),
+                'positions': positions,
+                'chart_data': chart_data,
+                'page_title': "Encrypt Result"
+            }
+            return render(request, "voting/voter/encrypt_tally.html", context)
+        else:
+            # Add a message for users who haven't voted yet
+            messages.info(request, "Please vote first to preview the result.")
+            return redirect(reverse('show_ballot'))
+        
 
 def verify(request):
     context = {
@@ -369,6 +421,117 @@ def preview_vote(request):
     return JsonResponse(context, safe=False)
 
 
+# def submit_ballot(request):
+#     if request.method != 'POST':
+#         messages.error(request, "Please, browse the system properly")
+#         return redirect(reverse('show_ballot'))
+    
+    
+#     # Verify if the voter has voted or not
+#     # voter = request.user.voter
+#     # if voter.voted:
+#     #     messages.error(request, "You have voted already")
+#     #     return redirect(reverse('voterDashboard'))
+#     voter = request.user.voter
+#     custom_user = CustomUser.objects.get(id=voter.admin.id)
+
+#     # Check validation status
+#     if custom_user.validation_status == 'pending':
+#         messages.error(request, "Your voter status is still pending. You cannot vote at the moment. Please Contacted admin")
+#         return redirect(reverse('voterDashboard'))
+#     elif custom_user.validation_status == 'rejected':
+#         messages.error(request, "Your voter status has been rejected. You cannot vote.")
+#         return redirect(reverse('voterDashboard'))
+
+
+#     if voter.voted:
+#         messages.error(request, "You have voted already")
+#         return redirect(reverse('voterDashboard'))
+
+#     form = dict(request.POST)
+#     form.pop('csrfmiddlewaretoken', None)  # Pop CSRF Token
+#     form.pop('submit_vote', None)  # Pop Submit Button
+
+#     # Ensure at least one vote is selected
+#     if len(form.keys()) < 1:
+#         messages.error(request, "Please select at least one candidate")
+#         return redirect(reverse('show_ballot'))
+#     positions = Position.objects.all()
+#     form_count = 0
+#     for position in positions:
+#         max_vote = position.max_vote
+#         pos = slugify(position.name)
+#         pos_id = position.id
+#         if position.max_vote > 1:
+#             this_key = pos + "[]"
+#             form_position = form.get(this_key)
+#             if form_position is None:
+#                 continue
+#             if len(form_position) > max_vote:
+#                 messages.error(request, "You can only choose " +
+#                                str(max_vote) + " candidates for " + position.name)
+#                 return redirect(reverse('show_ballot'))
+#             else:
+#                 for form_candidate_id in form_position:
+#                     form_count += 1
+#                     try:
+#                         candidate = Candidate.objects.get(
+#                             id=form_candidate_id, position=position)
+#                         vote = Votes()
+#                         vote.candidate = candidate
+#                         vote.voter = voter
+#                         vote.position = position
+#                         vote.save()
+#                     except Exception as e:
+#                         messages.error(
+#                             request, "Please, browse the system properly " + str(e))
+#                         return redirect(reverse('show_ballot'))
+#         else:
+#             this_key = pos
+#             form_position = form.get(this_key)
+#             if form_position is None:
+#                 continue
+#             # Max Vote == 1
+#             form_count += 1
+#             try:
+#                 form_position = form_position[0]
+#                 candidate = Candidate.objects.get(
+#                     position=position, id=form_position)
+#                 vote = Votes()
+#                 vote.candidate = candidate
+#                 vote.voter = voter
+#                 vote.position = position
+#                 vote.save()
+#             except Exception as e:
+#                 messages.error(
+#                     request, "Please, browse the system properly " + str(e))
+#                 return redirect(reverse('show_ballot'))
+#     # Count total number of records inserted
+#     # Check it viz-a-viz form_count
+#     inserted_votes = Votes.objects.filter(voter=voter)
+#     if (inserted_votes.count() != form_count):
+#         # Delete
+#         inserted_votes.delete()
+#         messages.error(request, "Please try voting again!")
+#         return redirect(reverse('show_ballot'))
+#     else:
+#         # Update Voter profile to voted
+#         voter.voted = True
+#         voter.save()
+#         messages.success(request, "Thanks for voting")
+#         return redirect(reverse('voterDashboard'))
+
+import pickle
+from paillier.paillier import encrypt, decrypt
+
+# Baca kunci privat dari file
+with open("private_key.pkl", "rb") as private_file:
+    private_key = pickle.load(private_file)
+
+# Baca kunci publik dari file
+with open("public_key.pkl", "rb") as public_file:
+    public_key = pickle.load(public_file)
+
 def submit_ballot(request):
     if request.method != 'POST':
         messages.error(request, "Please, browse the system properly")
@@ -443,13 +606,14 @@ def submit_ballot(request):
             form_count += 1
             try:
                 form_position = form_position[0]
-                candidate = Candidate.objects.get(
-                    position=position, id=form_position)
-                vote = Votes()
-                vote.candidate = candidate
-                vote.voter = voter
-                vote.position = position
-                vote.save()
+                candidate = Candidate.objects.get(position=position, id=form_position)
+                candidate_id = candidate.id  # Ambil ID candidate
+                encrypted_candidate_id = encrypt(public_key, candidate_id)
+                vote_encrypt = Votes_encrypt()
+                vote_encrypt.voter = voter
+                vote_encrypt.position = position
+                vote_encrypt.candidate_encrypt = str(encrypted_candidate_id)
+                vote_encrypt.save()
             except Exception as e:
                 messages.error(
                     request, "Please, browse the system properly " + str(e))

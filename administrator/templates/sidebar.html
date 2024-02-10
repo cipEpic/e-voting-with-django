@@ -20,6 +20,7 @@
       <li class="header">REPORTS</li>
       <li class=""><a href="{% url 'adminDashboard' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
       <li class=""><a href="{% url 'viewVotes' %}"><span class="glyphicon glyphicon-lock"></span> <span>Votes</span></a></li>
+      <li class=""><a href="{% url 'viewEncryptVotes' %}"><span class="glyphicon glyphicon-lock"></span> <span>Encrypted Votes</span></a></li>
       <li class="header">MANAGE</li>
       <li class=""><a href="{% url 'adminViewVoters' %}"><i class="fa fa-users"></i> <span>Voters</span></a></li>
       <li class=""><a href="{% url 'viewPredict' %}"><i class="fa fa-check"></i> <span>Voters Validation</span></a></li>
@@ -34,6 +35,7 @@
       <li class="header">HOME</li>
       <li class=""><a href="{% url 'voterDashboard' %}"><i class="fa fa-some-icon"></i> <span>Dashboard</span></a></li>
       <li class=""><a href="{% url 'voterResult' %}"><i class="fa fa-some-icon"></i> <span>Result</span></a></li>
+      <li class=""><a href="{% url 'voterEncryptResult' %}"><i class="fa fa-some-icon"></i> <span>Encrypt Result</span></a></li>
       <!-- Add more elements specific to user_type 2 as needed -->
 
       {% endif %}

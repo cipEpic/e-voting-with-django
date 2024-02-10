@@ -31,7 +31,9 @@ class CustomUserManager(UserManager):
         assert extra_fields["is_superuser"]
         return self._create_user(email, password, **extra_fields)
 
-
+#disini user photo duplikat masalahnya
+#django.db.utils.OperationalError: (1060, "Duplicate column name 'user_photo'")
+#The error message you're encountering (django.db.utils.OperationalError: (1060, "Duplicate column name 'user_photo'")) indicates that you are trying to add a column named 'user_photo' to a database table, but a column with that name already exists in the table.
 class CustomUser(AbstractUser):
     USER_TYPE = ((1, "Admin"), (2, "Voter"))
     username = None  # Removed username, using email instead

@@ -45,3 +45,10 @@ class Votes(models.Model):
     voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
     candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+
+
+class Votes_encrypt(models.Model):
+    voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
+    position = models.ForeignKey(Position, on_delete=models.CASCADE)
+    candidate_encrypt = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+

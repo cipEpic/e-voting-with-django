@@ -88,7 +88,7 @@ def find_n_winners(data, n):
         print(context)
         return context
 
-
+#dibawah ini yg disesuaikan dg yg sudah di edit di user nanti
 def dashboard(request):
     positions = Position.objects.all().order_by('priority')
     candidates = Candidate.objects.all()
@@ -430,3 +430,13 @@ def viewPredict(request):
         'page_title': 'Predict'
     }
     return render(request, "admin/predict.html", context)
+
+
+#encrypted votes
+def viewEncryptVotes(request):
+    votes = Votes_encrypt.objects.all()
+    context = {
+        'votes': votes,
+        'page_title': 'Votes'
+    }
+    return render(request, "admin/encryptvotes.html", context)
