@@ -25,29 +25,34 @@
 
 # voting/paillier/example.py
 import pickle
-from paillier import encrypt, decrypt
+from paillier import encrypt, decrypt, read_keys, e_add_const
 
-# Baca kunci privat dari file
-with open("private_key.pkl", "rb") as private_file:
-    private_key = pickle.load(private_file)
+# # Baca kunci privat dari file
+# with open("private_key.pkl", "rb") as private_file:
+#     private_key = pickle.load(private_file)
 
-# Baca kunci publik dari file
-with open("public_key.pkl", "rb") as public_file:
-    public_key = pickle.load(public_file)
+# # Baca kunci publik dari file
+# with open("public_key.pkl", "rb") as public_file:
+#     public_key = pickle.load(public_file)
+
+# Contoh penggunaan
+public_key, private_key = read_keys()
 
 # Misalnya, hasil suara dari pemilih
-vote_result = 42
+vote_result = 0
 
-# Gunakan kunci publik untuk mengenkripsi hasil suara
-encrypted_vote = encrypt(public_key, vote_result)
-print("Hasil encrypt:", encrypted_vote)
-# encrypted_vote = 33499192531448476849903756740017311248
+# # Gunakan kunci publik untuk mengenkripsi hasil suara
+# encrypted_vote = encrypt(public_key, vote_result)
+# print("Hasil encrypt:", encrypted_vote)
+encrypted_vote = 22694462256154228223962587309491839540
 
 # Gunakan kunci privat untuk mendekripsi hasil suara yang dienkripsi
 decrypted_vote = decrypt(private_key, public_key, encrypted_vote)
 print("Hasil decrypt:", decrypted_vote)
 
 
+# sum_vote = e_add_const(public_key,encrypted_vote,1)
+# print("Hasil sum:", sum_vote)
 
 # import pickle
 # from paillier import encrypt, decrypt

@@ -36,6 +36,8 @@ class Candidate(models.Model):
     photo = models.ImageField(upload_to="candidates")
     bio = models.TextField()
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
+    skorenk = models.CharField(max_length=500, default='0')  # Skor untuk data terenkripsi
+    skordek = models.CharField(max_length=500, default='0')  # Skor untuk data terdekripsi
 
     def __str__(self):
         return self.fullname
@@ -50,5 +52,19 @@ class Votes(models.Model):
 class Votes_encrypt(models.Model):
     voter = models.ForeignKey(Voter, on_delete=models.CASCADE)
     position = models.ForeignKey(Position, on_delete=models.CASCADE)
-    candidate_encrypt = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    # candidate_encrypt = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    candidate_encrypt_id = models.CharField(max_length=500)  # Adjust the max_length as needed
 
+    def __str__(self):
+        return f"{self.voter} - {self.position} - {self.candidate_encrypt}"
+
+
+# class party(models.Model):
+#     party_a = models.CharField(db_column='Candidate_1', max_length=512)  # Field name made lowercase.
+#     party_b = models.CharField(db_column='Candidate_2', max_length=512)  # Field name made lowercase.
+#     party_c = models.CharField(db_column='Candidate_3', max_length=512)  # Field name made lowercase.
+
+#     class Meta:
+#         ##managed = False
+#         db_table = 'party'
+ 

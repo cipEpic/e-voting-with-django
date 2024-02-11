@@ -415,10 +415,12 @@ def viewVotes(request):
 
 def resetVote(request):
     Votes.objects.all().delete()
+    Votes_encrypt.objects.all().delete()
     Voter.objects.all().update(voted=False, verified=False, otp=None)
+    # Setel skorenk dan skordek kembali ke 0 pada semua kandidat
+    Candidate.objects.all().update(skorenk='0', skordek='0')
     messages.success(request, "All votes has been reset")
     return redirect(reverse('viewVotes'))
-
 
 
 #Function for validation

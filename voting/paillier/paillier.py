@@ -109,3 +109,28 @@ def decrypt(priv, pub, cipher):
     x = pow(cipher, priv.l, pub.n_sq) - 1
     plain = ((x // pub.n) * priv.m) % pub.n
     return plain
+
+
+import pickle
+from paillier import PublicKey, PrivateKey
+
+def read_keys(private_key_path="private_key.pkl", public_key_path="public_key.pkl"):
+    try:
+        # Baca kunci privat dari file
+        with open(private_key_path, "rb") as private_file:
+            private_key = pickle.load(private_file)
+        
+        # Baca kunci publik dari file
+        with open(public_key_path, "rb") as public_file:
+            public_key = pickle.load(public_file)
+
+        return public_key, private_key
+
+    except FileNotFoundError:
+        # Jika file tidak ditemukan, tampilkan pesan kesalahan atau lakukan penanganan sesuai kebutuhan Anda.
+        print("File not found. Make sure the key files exist.")
+        return None, None
+    except Exception as e:
+        # Handle exception sesuai kebutuhan Anda.
+        print(f"An error occurred: {e}")
+        return None, None
