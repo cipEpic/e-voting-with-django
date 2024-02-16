@@ -19,24 +19,38 @@
         <!-- User Account: style can be found in dropdown.less -->
         <li class="dropdown user user-menu">
           <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-            <img src="{% static 'images/people.png' %}" class="user-image" alt="User Image">
+            {% if request.user.user_photo %}
+            <img src="{{ request.user.user_photo.url }}" class="user-image" alt="User Image">
+            {% else %}
+            <!-- Tampilkan gambar default jika tidak ada gambar profil -->
+            <img src="{% static 'images/default-user-image.jpg' %}" class="user-image" alt="Default User Image">
+            {% endif %}
             <span class="hidden-xs">{{ request.user }}</span>
           </a>
           <ul class="dropdown-menu">
             <!-- User image -->
+            <!-- User image -->
             <li class="user-header">
-              <img src="{% static 'images/people.png' %}" class="img-circle" alt="User Image">
+              {% if request.user.user_photo %}
+              <img src="{{ request.user.user_photo.url }}" class="img-circle" alt="User Image">
+              {% else %}
+              <!-- Tampilkan gambar default jika tidak ada gambar profil -->
+              <img src="{% static 'images/default-user-image.jpg' %}" class="img-circle" alt="Default User Image">
+              {% endif %}
 
               <p>
-                System Administrator                <small>Member since Mar. 2021</small>
+                {{ request.user.first_name }} {{ request.user.last_name }}
+                <small>Member since {{ request.user.date_joined|date:"M. Y" }}</small>
               </p>
             </li>
+
             <li class="user-footer">
               <div class="pull-left">
-                <a href="#profile" data-toggle="modal" class="btn btn-default btn-flat" id="admin_profile">Update</a>
+                <!-- <a href="#profile" data-toggle="modal" class="btn btn-default btn-flat" id="admin_profile">Update</a> -->
+                <!-- <a href="#profile" data-toggle="modal" class="btn btn-primary btn-flat" id="admin_profile">Cek status</a> -->
               </div>
-              <div class="pull-right">
-                <a href="{% url 'account_logout' %}" class="btn btn-default btn-flat">Sign out</a>
+              <div class="pull-right text-center">
+                <a href="{% url 'account_logout' %}" class="btn btn-danger btn-flat">Sign out</a>
               </div>
             </li>
           </ul>
@@ -45,5 +59,5 @@
     </div>
   </nav>
 </header>
- 
+
 {% include "bio.html" %}

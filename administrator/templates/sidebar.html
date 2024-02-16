@@ -5,7 +5,12 @@
     <!-- Sidebar user panel -->
     <div class="user-panel">
       <div class="pull-left image">
-        <img src="{% static 'images/people.png' %}" class="img-circle" alt="User Image">
+        {% if request.user.user_photo %}
+        <img src="{{ request.user.user_photo.url }}" class="img-circle" alt="User Image">
+        {% else %}
+        <!-- Tampilkan gambar default jika tidak ada gambar profil -->
+        <img src="{% static 'images/default-user-image.jpg' %}" class="img-circle" alt="Default User Image">
+        {% endif %}
       </div>
       <div class="pull-left info">
         <p>{{ request.user }}</p>
@@ -15,31 +20,34 @@
     <!-- sidebar menu: : style can be found in sidebar.less -->
     <ul class="sidebar-menu" data-widget="tree">
       {% if request.user.user_type == '1' %}
-  
-      
+
+
       <li class="header">REPORTS</li>
       <li class=""><a href="{% url 'adminDashboard' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
-      <li class=""><a href="{% url 'viewVotes' %}"><span class="glyphicon glyphicon-lock"></span> <span>Votes</span></a></li>
-      <li class=""><a href="{% url 'viewEncryptVotes' %}"><span class="glyphicon glyphicon-lock"></span> <span>Encrypted Votes</span></a></li>
+      <!-- <li class=""><a href="{% url 'viewVotes' %}"><span class="glyphicon glyphicon-lock"></span> <span>Votes</span></a></li> -->
+      <li class=""><a href="{% url 'viewEncryptVotes' %}"><span class="glyphicon glyphicon-lock"></span> <span>Encrypted
+            Votes</span></a></li>
       <li class="header">MANAGE</li>
       <li class=""><a href="{% url 'adminViewVoters' %}"><i class="fa fa-users"></i> <span>Voters</span></a></li>
       <li class=""><a href="{% url 'viewPredict' %}"><i class="fa fa-check"></i> <span>Voters Validation</span></a></li>
       <li class=""><a href="{% url 'viewPositions' %}"><i class="fa fa-tasks"></i> <span>Positions</span></a></li>
       <li class=""><a href="{% url 'viewCandidates' %}"><i class="fa fa-black-tie"></i> <span>Candidates</span></a></li>
       <li class="header">SETTINGS</li>
-      <li class=""><a href="{% url 'ballot_position' %}"><i class="fa fa-file-text"></i> <span>Ballot Position</span></a></li>
+      <li class=""><a href="{% url 'ballot_position' %}"><i class="fa fa-file-text"></i> <span>Ballot
+            Position</span></a></li>
       <li class=""><a href="#config" data-toggle="modal"><i class="fa fa-cog"></i> <span>Election Title</span></a></li>
-      
+
       {% elif request.user.user_type == '2' %}
       <!-- Sidebar elements for user_type 2 -->
       <li class="header">HOME</li>
       <li class=""><a href="{% url 'voterDashboard' %}"><i class="fa fa-some-icon"></i> <span>Dashboard</span></a></li>
       <li class=""><a href="{% url 'voterResult' %}"><i class="fa fa-some-icon"></i> <span>Result</span></a></li>
-      <li class=""><a href="{% url 'voterEncryptResult' %}"><i class="fa fa-some-icon"></i> <span>Encrypt Result</span></a></li>
+      <li class=""><a href="{% url 'voterEncryptResult' %}"><i class="fa fa-some-icon"></i> <span>Encrypt
+            Result</span></a></li>
       <!-- Add more elements specific to user_type 2 as needed -->
 
       {% endif %}
-        
+
       <li class="header">Exit</li>
       <li class=""><a href="{% url 'account_logout' %}"><i class="fa fa-arrow-left"></i> <span>Logout</span></a></li>
 

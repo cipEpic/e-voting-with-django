@@ -170,6 +170,18 @@ def view_voter_by_id(request):
         context['validation_status'] = voter.admin.validation_status
     return JsonResponse(context)
 
+# def view_voter_status_by_id(request):
+#     voter_id = request.GET.get('id', None)
+#     try:
+#         voter = Voter.objects.get(id=voter_id)
+#         context = {
+#             'code': 200,
+#             'validation_status': voter.admin.validation_status
+#         }
+#     except Voter.DoesNotExist:
+#         context = {'code': 404}
+
+#     return JsonResponse(context)
 
 def view_position_by_id(request):
     pos_id = request.GET.get('id', None)
