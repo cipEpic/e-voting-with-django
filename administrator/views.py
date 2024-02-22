@@ -134,6 +134,7 @@ def voters(request):
         'page_title': 'Voters List'
     }
     if request.method == 'POST':
+        
         if userForm.is_valid() and voterForm.is_valid():
             user = userForm.save(commit=False)
             voter = voterForm.save(commit=False)
@@ -164,6 +165,7 @@ def view_voter_by_id(request):
         context['first_name'] = voter.admin.first_name
         context['last_name'] = voter.admin.last_name
         context['phone'] = voter.phone
+        context['ni'] = voter.admin.ni
         context['id'] = voter.id
         context['email'] = voter.admin.email
         # context['user_photo'] = voter.admin.user_photo
@@ -201,15 +203,6 @@ def view_position_by_id(request):
 def updateVoter(request):
     if request.method != 'POST':
         messages.error(request, "Access Denied")
-    # try:
-    #     instance = Voter.objects.get(id=request.POST.get('id'))
-    #     user = CustomUserForm(request.POST or None, instance=instance.admin)
-    #     voter = VoterForm(request.POST or None, instance=instance)
-    #     # voter.validation_status = request.POST.get('validation_status')
-    #     # voter.photo_V = request.POST.get('photo_V')
-    #     user.save()
-    #     voter.save()
-    #     messages.success(request, "Voter's bio updated")
     try:
         voter_id = request.POST.get('id')
         instance = Voter.objects.get(id=voter_id)

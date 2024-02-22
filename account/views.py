@@ -32,13 +32,11 @@ def account_login(request):
 
 
 def account_register(request):
-    userForm = CustomUserForm(request.POST or None)
-    voterForm = VoterForm(request.POST or None)
-    context = {
-        'form1': userForm,
-        'form2': voterForm
-    }
     if request.method == 'POST':
+        userForm = CustomUserForm(request.POST, request.FILES)
+        voterForm = VoterForm(request.POST)
+        context = {'form1': userForm, 'form2': voterForm}
+
         if userForm.is_valid() and voterForm.is_valid():
             user = userForm.save(commit=False)
             voter = voterForm.save(commit=False)
@@ -49,8 +47,31 @@ def account_register(request):
             return redirect(reverse('account_login'))
         else:
             messages.error(request, "Provided data failed validation")
-            # return account_login(request)
+    else:
+        userForm = CustomUserForm()
+        voterForm = VoterForm()
+        context = {'form1': userForm, 'form2': voterForm}
+
     return render(request, "voting/reg.html", context)
+    # userForm = CustomUserForm(request.POST or None)
+    # voterForm = VoterForm(request.POST or None)
+    # context = {
+    #     'form1': userForm,
+    #     'form2': voterForm
+    # }
+    # if request.method == 'POST':
+    #     if userForm.is_valid() and voterForm.is_valid():
+    #         user = userForm.save(commit=False)
+    #         voter = voterForm.save(commit=False)
+    #         voter.admin = user
+    #         user.save()
+    #         voter.save()
+    #         messages.success(request, "Account created. You can login now!")
+    #         return redirect(reverse('account_login'))
+    #     else:
+    #         messages.error(request, "Provided data failed validation")
+    #         # return account_login(request)
+    # return render(request, "voting/reg.html", context)
 
 
 def account_logout(request):

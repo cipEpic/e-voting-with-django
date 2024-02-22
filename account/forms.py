@@ -14,8 +14,9 @@ class CustomUserForm(FormSettings):
     email = forms.EmailField(required=True)
     # email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput)
-    user_photo = forms.ImageField(required=False)  # Add this line for user_photo
-
+    user_photo = forms.ImageField( required=True)  # Add this line for user_photo
+    # exclude = ['validation_status']
+    ni = forms.CharField(max_length=16, required=True)  # Add 'ni' field
     widget = {
         'password': forms.PasswordInput(),
     }
@@ -47,6 +48,27 @@ class CustomUserForm(FormSettings):
                     raise forms.ValidationError(
                         "The given email is already registered")
         return formEmail
+    
+    def clean_user_photo(self):
+        user_photo = self.cleaned_data.get('user_photo')
+        if not user_photo:
+            raise forms.ValidationError("User photo is required.")
+        return user_photo
+    
+    # def clean_ni(self, *args, **kwargs):
+    #     formNi = self.cleaned_data['ni'].lower()
+    #     if self.instance.pk is None:  # Insert
+    #         if CustomUser.objects.filter(email=formNi).exists():
+    #             raise forms.ValidationError(
+    #                 "The given nomor identitas is already registered")
+    #     else:  # Update
+    #         dbNi = self.Meta.model.objects.get(
+    #             id=self.instance.pk).ni.lower()
+    #         if dbNi != formNi:  # There has been changes
+    #             if CustomUser.objects.filter(email=formNi).exists():
+    #                 raise forms.ValidationError(
+    #                     "The given nomor identitas is already registered")
+    #     return formNi
 
     def clean_password(self):
         password = self.cleaned_data.get("password", None)
@@ -59,4 +81,4 @@ class CustomUserForm(FormSettings):
 
     class Meta:
         model = CustomUser
-        fields = ['last_name', 'first_name', 'email', 'password', 'user_photo', 'validation_status',]
+        fields = ['last_name', 'first_name', 'email', 'password', 'user_photo', 'ni',]

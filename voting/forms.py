@@ -6,7 +6,9 @@ from account.forms import FormSettings
 class VoterForm(FormSettings):
     class Meta:
         model = Voter
-        fields = ['phone']
+        fields = ['phone'] #entah kenapa kalau ini ditambah lagi bikin ga bisa update
+    
+    
 
 
 class PositionForm(FormSettings):

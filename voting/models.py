@@ -10,7 +10,7 @@ class Voter(models.Model):
     verified = models.BooleanField(default=False)
     voted = models.BooleanField(default=False)
     otp_sent = models.IntegerField(default=0)  # Control how many OTPs are sent
-
+    # ni = models.CharField(max_length=16, unique=True)
     # New columns
     # photo_V = models.ImageField(upload_to="voting_voter")
     # validation_status = models.CharField(

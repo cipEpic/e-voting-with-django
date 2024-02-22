@@ -47,6 +47,7 @@ class CustomUser(AbstractUser):
         choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')],
         default='pending'
     )  # New field
+    ni = models.CharField(max_length=16, unique=True)
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     objects = CustomUserManager()
